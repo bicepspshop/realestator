@@ -19,7 +19,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { createCollection } from "./actions"
-import { PlusCircle } from "lucide-react"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -79,15 +78,12 @@ export function CreateCollectionDialog({ userId, buttonText = "Создать к
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="luxury" animation="scale" className="flex items-center gap-2">
-          <PlusCircle size={18} />
-          {buttonText}
-        </Button>
+        <Button>{buttonText}</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-sm">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-display text-luxury-black">Создать новую коллекцию</DialogTitle>
-          <DialogDescription className="text-luxury-black/70">
+          <DialogTitle>Создать новую коллекцию</DialogTitle>
+          <DialogDescription>
             Создайте новую коллекцию для организации объектов недвижимости для ваших клиентов.
           </DialogDescription>
         </DialogHeader>
@@ -98,33 +94,19 @@ export function CreateCollectionDialog({ userId, buttonText = "Создать к
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-luxury-black/80 font-medium">Название коллекции</FormLabel>
+                  <FormLabel>Название коллекции</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Элитные квартиры" 
-                      className="rounded-sm border-gray-200 focus-visible:ring-luxury-gold/50 py-5" 
-                      {...field} 
-                    />
+                    <Input placeholder="Элитные квартиры" {...field} />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter className="gap-2 mt-6">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setOpen(false)} 
-                className="border-luxury-black/20 hover:bg-luxury-black/5 rounded-sm"
-              >
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Отмена
               </Button>
-              <Button 
-                type="submit" 
-                variant="luxury" 
-                disabled={isLoading}
-                className="rounded-sm"
-              >
+              <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Создание..." : "Создать"}
               </Button>
             </DialogFooter>

@@ -1,5 +1,4 @@
 "use client"
-
 import { PropertyCard } from "./property-card"
 
 interface PropertyImage {
@@ -28,9 +27,9 @@ interface PropertyListProps {
 
 export function PropertyList({ properties }: PropertyListProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-10">
-      {properties.map((property, index) => (
-        <PropertyCard key={property.id} property={property} index={index} />
+    <div className="space-y-6">
+      {properties.map((property) => (
+        <PropertyCard key={property.id} property={property} />
       ))}
     </div>
   )

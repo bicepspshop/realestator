@@ -106,78 +106,63 @@ export function PropertyCard({ property, collectionId, userId }: PropertyCardPro
 
   return (
     <>
-      <Card className="overflow-hidden rounded-sm border-transparent shadow-subtle hover:shadow-elegant transition-all duration-300 animate-fade-in-up">
-        <CardHeader className="bg-luxury-black/5 border-b border-luxury-black/10 pb-3 px-4 pt-4">
+      <Card>
+        <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-lg font-display text-luxury-black">{property.address}</CardTitle>
-              <CardDescription className="text-luxury-black/60">{propertyTypeLabel}</CardDescription>
+              <CardTitle className="text-lg">{property.address}</CardTitle>
+              <CardDescription>{propertyTypeLabel}</CardDescription>
             </div>
-            <div className="flex gap-1.5">
-              <Button 
-                variant="minimal" 
-                size="sm" 
-                onClick={() => setIsDetailsDialogOpen(true)}
-                className="text-luxury-black/70 hover:text-luxury-gold transition-colors duration-300 w-8 h-8 p-0 flex items-center justify-center"
-              >
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setIsDetailsDialogOpen(true)}>
                 <Eye className="h-4 w-4" />
               </Button>
-              <Button 
-                variant="minimal" 
-                size="sm" 
-                onClick={() => setIsEditDialogOpen(true)}
-                className="text-luxury-black/70 hover:text-luxury-gold transition-colors duration-300 w-8 h-8 p-0 flex items-center justify-center"
-              >
+              <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button 
-                variant="minimal" 
-                size="sm" 
-                onClick={() => setIsDeleteDialogOpen(true)}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-300 w-8 h-8 p-0 flex items-center justify-center"
-              >
+              <Button variant="destructive" size="sm" onClick={() => setIsDeleteDialogOpen(true)}>
                 <Trash className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pb-4 pt-4 px-4">
+        <CardContent className="pb-2">
           {property.property_images && property.property_images.length > 0 ? (
-            <div className="aspect-video relative mb-4 rounded-sm overflow-hidden">
+            <div className="aspect-video relative mb-4 rounded-md overflow-hidden">
               <Image
                 src={property.property_images[0].image_url || "/placeholder.svg"}
                 alt={property.address}
                 fill
-                className="object-cover hover:scale-105 transition-all duration-700"
+                className="object-cover"
               />
             </div>
           ) : (
-            <div className="aspect-video bg-luxury-black/5 mb-4 rounded-sm flex items-center justify-center border border-luxury-black/10">
-              <p className="text-luxury-black/40 text-sm">Нет изображения</p>
+            <div className="aspect-video bg-gray-200 mb-4 rounded-md flex items-center justify-center">
+              <p className="text-gray-500">Нет изображения</p>
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-2 mb-4">
             <div>
-              <p className="text-sm text-luxury-black/50">Цена</p>
-              <p className="font-medium text-luxury-black">{formatPrice(property.price)}</p>
+              <p className="text-sm text-gray-500">Цена</p>
+              <p className="font-semibold">{formatPrice(property.price)}</p>
             </div>
             <div>
-              <p className="text-sm text-luxury-black/50">Площадь</p>
-              <p className="font-medium text-luxury-black">{property.area} кв.м</p>
+              <p className="text-sm text-gray-500">Площадь</p>
+              <p className="font-semibold">{property.area} кв.м</p>
             </div>
             {property.rooms !== null && (
               <div>
-                <p className="text-sm text-luxury-black/50">Комнаты</p>
-                <p className="font-medium text-luxury-black">{property.rooms}</p>
+                <p className="text-sm text-gray-500">Комнаты</p>
+                <p className="font-semibold">{property.rooms}</p>
               </div>
             )}
           </div>
 
           {property.description && (
             <div>
-              <p className="text-sm text-luxury-black/50">Описание</p>
-              <p className="text-sm line-clamp-3 text-luxury-black/80">{property.description}</p>
+              <p className="text-sm text-gray-500">Описание</p>
+              <p className="text-sm line-clamp-3">{property.description}</p>
             </div>
           )}
         </CardContent>
@@ -185,28 +170,18 @@ export function PropertyCard({ property, collectionId, userId }: PropertyCardPro
 
       {/* Диалог подтверждения удаления */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] rounded-sm">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-xl font-display text-luxury-black">Удалить объект</DialogTitle>
-            <DialogDescription className="text-luxury-black/70">
+            <DialogTitle>Удалить объект</DialogTitle>
+            <DialogDescription>
               Вы уверены, что хотите удалить этот объект? Это действие нельзя отменить.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 mt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsDeleteDialogOpen(false)} 
-              disabled={isLoading}
-              className="border-luxury-black/20 hover:bg-luxury-black/5 rounded-sm"
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isLoading}>
               Отмена
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDelete} 
-              disabled={isLoading}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-sm"
-            >
+            <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
               {isLoading ? "Удаление..." : "Удалить"}
             </Button>
           </DialogFooter>

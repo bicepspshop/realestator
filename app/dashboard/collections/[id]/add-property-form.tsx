@@ -13,7 +13,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
 import { ImageUpload } from "@/components/image-upload"
-import { FloorPlanUpload } from "@/components/floor-plan-upload"
 import { addProperty } from "./actions"
 import { YandexMap } from "@/components/yandex-map"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -47,7 +46,6 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
-  const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
   const [mapCoordinates, setMapCoordinates] = useState<[number, number] | null>(null)
 
@@ -77,7 +75,6 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
 
     setIsLoading(true)
     console.log("Отправка формы с изображениями:", imageUrls)
-    console.log("Отправка формы с планировкой:", floorPlanUrl)
 
     try {
       // Проверяем, что все изображения загружены
@@ -101,7 +98,6 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
         price: values.price!,
         description: values.description || "",
         imageUrls,
-        floorPlanUrl, // Добавляем URL планировки
         floor: values.floor,
         totalFloors: values.totalFloors,
         balcony: values.balcony,
@@ -125,7 +121,6 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
         })
         form.reset()
         setImageUrls([])
-        setFloorPlanUrl(null)
 
         // Перенаправляем на страницу коллекции после успешного добавления
         router.push(`/dashboard/collections/${collectionId}`)
@@ -145,11 +140,6 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
   const handleImagesChange = (urls: string[]) => {
     console.log("Получены URL изображений:", urls)
     setImageUrls(urls)
-  }
-
-  const handleFloorPlanChange = (url: string | null) => {
-    console.log("Получен URL планировки:", url)
-    setFloorPlanUrl(url)
   }
 
   const handleAddressSelect = (address: string, coordinates?: [number, number]) => {
@@ -189,16 +179,11 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
   const showMap = addressValue && addressValue.length > 5
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-elegant border relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('/images/background.png')] bg-cover bg-center opacity-[0.2] z-0"></div>
-      <div className="relative z-10">
-      <div className="mb-6">
-        <h2 className="text-2xl font-serif font-medium text-luxury-black">Добавить новый объект</h2>
-        <div className="w-20 h-0.5 bg-luxury-gold mt-2"></div>
-      </div>
+    <div className="bg-white p-6 rounded-lg shadow-sm border">
+      <h2 className="text-xl font-semibold mb-4">Добавить новый объект</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="propertyType"
@@ -479,26 +464,13 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
             <ImageUpload onImagesChange={handleImagesChange} />
           </div>
 
-          {/* Новое поле для загрузки планировки */}
-          <div>
-            <FormLabel className="block mb-2">Планировка</FormLabel>
-            <FloorPlanUpload onImageChange={handleFloorPlanChange} />
-          </div>
-
-          <div className="flex gap-4 mt-8">
-            <Button 
-              type="submit" 
-              disabled={isLoading} 
-              className="bg-luxury-gold hover:bg-luxury-gold/90 text-luxury-black font-medium py-6 px-8"
-              animation="scale"
-            >
+          <div className="flex gap-4">
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? "Добавление..." : "Добавить объект"}
             </Button>
             <Button
               type="button"
               variant="outline"
-              className="border-luxury-black/20 hover:bg-luxury-black/5 hover:border-luxury-black/30 rounded-sm py-6 px-8"
-              animation="scale"
               onClick={() => router.push(`/dashboard/collections/${collectionId}`)}
             >
               Отмена
@@ -506,7 +478,6 @@ export function AddPropertyForm({ collectionId }: AddPropertyFormProps) {
           </div>
         </form>
       </Form>
-      </div>
     </div>
   )
 }

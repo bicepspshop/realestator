@@ -1,8 +1,9 @@
 "use client"
 
+import { Input } from "@/components/ui/input"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Trash, Copy, ExternalLink, Share2 } from "lucide-react"
+import { Share, Trash } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { deleteCollection, generateShareLink } from "./actions"
 
@@ -20,13 +21,14 @@ interface CollectionActionsProps {
   collectionId: string
   userId: string
   hasShareLink: boolean
-  shareId?: string
 }
 
-export function CollectionActions({ collectionId, userId, hasShareLink, shareId }: CollectionActionsProps) {
+export function CollectionActions({ collectionId, userId, hasShareLink }: CollectionActionsProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
+  const [shareLink, setShareLink] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleDelete = async () => {
@@ -71,15 +73,8 @@ export function CollectionActions({ collectionId, userId, hasShareLink, shareId 
           description: result.error,
         })
       } else {
-        const link = `${window.location.origin}/share/${result.shareId}`
-
-        // Копируем ссылку в буфер обмена
-        await navigator.clipboard.writeText(link)
-
-        toast({
-          title: "Ссылка скопирована",
-          description: "Ссылка скопирована в буфер обмена",
-        })
+        setShareLink(`${window.location.origin}/share/${result.shareId}`)
+        setIsShareDialogOpen(true)
       }
     } catch (error) {
       toast({
@@ -92,109 +87,61 @@ export function CollectionActions({ collectionId, userId, hasShareLink, shareId 
     }
   }
 
-  const copyToClipboard = async () => {
-    try {
-      // Если у нас уже есть shareId, формируем ссылку
-      if (shareId) {
-        const link = `${window.location.origin}/share/${shareId}`
-        await navigator.clipboard.writeText(link)
-        toast({
-          title: "Ссылка скопирована",
-          description: "Ссылка скопирована в буфер обмена",
-        })
-      }
-      // Если нет shareId, но есть флаг hasShareLink, генерируем ссылку
-      else if (hasShareLink) {
-        handleGenerateShareLink()
-      }
-      // Если нет ни shareId, ни флага hasShareLink, создаем новую ссылку
-      else {
-        handleGenerateShareLink()
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Не удалось скопировать ссылку",
-        description: "Произошла ошибка при копировании ссылки",
-      })
-    }
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shareLink)
+    toast({
+      title: "Ссылка скопирована",
+      description: "Ссылка скопирована в буфер обмена.",
+    })
   }
 
   return (
     <div className="flex justify-between w-full">
-      <div className="flex gap-2">
-        <Button 
-          variant="minimal" 
-          size="sm" 
-          onClick={copyToClipboard} 
-          disabled={isLoading}
-          className="text-luxury-black/70 hover:text-luxury-gold transition-colors duration-300 flex items-center gap-1.5 px-2.5 py-1"
-        >
-          {hasShareLink ? (
-            <>
-              <Copy className="h-4 w-4" />
-              <span className="hidden md:inline">Копировать</span>
-            </>
-          ) : (
-            <>
-              <Share2 className="h-4 w-4" />
-              <span className="hidden md:inline">Создать ссылку</span>
-            </>
-          )}
-        </Button>
+      <Button variant="outline" size="sm" onClick={handleGenerateShareLink} disabled={isLoading}>
+        <Share className="h-4 w-4 mr-2" />
+        {hasShareLink ? "Поделиться" : "Создать ссылку"}
+      </Button>
 
-        {hasShareLink && (
-          <Button 
-            variant="minimal" 
-            size="sm" 
-            asChild
-            className="text-luxury-black/70 hover:text-luxury-gold transition-colors duration-300 flex items-center gap-1.5 px-2.5 py-1"
-          >
-            <Link href={`/share/${shareId}`}>
-              <ExternalLink className="h-4 w-4" />
-              <span className="hidden md:inline">Перейти</span>
-            </Link>
-          </Button>
-        )}
-      </div>
-
-      <Button 
-        variant="minimal" 
-        size="sm" 
-        onClick={() => setIsDeleteDialogOpen(true)} 
-        disabled={isLoading}
-        className="text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-300 flex items-center gap-1.5 px-2.5 py-1"
-      >
-        <Trash className="h-4 w-4" />
-        <span className="hidden md:inline">Удалить</span>
+      <Button variant="destructive" size="sm" onClick={() => setIsDeleteDialogOpen(true)} disabled={isLoading}>
+        <Trash className="h-4 w-4 mr-2" />
+        Удалить
       </Button>
 
       {/* Диалог подтверждения удаления */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] rounded-sm">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-xl font-display text-luxury-black">Удалить коллекцию</DialogTitle>
-            <DialogDescription className="text-luxury-black/70">
+            <DialogTitle>Удалить коллекцию</DialogTitle>
+            <DialogDescription>
               Вы уверены, что хотите удалить эту коллекцию? Это действие нельзя отменить.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 mt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsDeleteDialogOpen(false)} 
-              disabled={isLoading}
-              className="border-luxury-black/20 hover:bg-luxury-black/5 rounded-sm"
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isLoading}>
               Отмена
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDelete} 
-              disabled={isLoading}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-sm"
-            >
+            <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
               {isLoading ? "Удаление..." : "Удалить"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог ссылки для обмена */}
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Поделиться коллекцией</DialogTitle>
+            <DialogDescription>
+              Поделитесь этой ссылкой с клиентами, чтобы они могли просмотреть коллекцию.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2">
+            <Input value={shareLink} readOnly />
+            <Button onClick={copyToClipboard}>Копировать</Button>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsShareDialogOpen(false)}>Закрыть</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

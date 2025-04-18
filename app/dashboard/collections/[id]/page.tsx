@@ -7,7 +7,6 @@ import { getSession } from "@/lib/auth"
 import { getServerClient } from "@/lib/supabase"
 import { PropertyCard } from "./property-card"
 import { AddPropertyForm } from "./add-property-form"
-import { ArrowLeft, Plus, HomeIcon } from "lucide-react"
 
 interface CollectionPageProps {
   params: {
@@ -88,47 +87,24 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     console.log(`CollectionPage: Получено ${properties?.length || 0} объектов`)
 
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-white to-gray-100">
+      <div className="flex flex-col min-h-screen">
         <NavBar userName={user.name} />
 
-        <main className="flex-1 container-luxury py-8">
-          <div className="flex justify-between items-center mb-10">
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="flex justify-between items-center mb-8">
             <div>
-              <div className="flex items-center gap-2 text-sm text-luxury-black/60 mb-2">
-                <Link href="/dashboard" className="flex items-center gap-1 hover:text-luxury-gold transition-colors">
-                  <HomeIcon size={14} />
-                  Коллекции
-                </Link>
-                <span className="px-1">/</span>
-                <span>{collection.name}</span>
-              </div>
-              <h1 className="text-3xl font-serif font-medium text-luxury-black">{collection.name}</h1>
-              <div className="w-20 h-0.5 bg-luxury-gold mt-2 mb-3"></div>
-              <p className="text-luxury-black/60">Управление объектами недвижимости в этой коллекции</p>
+              <h1 className="text-3xl font-bold">{collection.name}</h1>
+              <p className="text-gray-600">Управление объектами недвижимости в этой коллекции</p>
             </div>
             <Link href="/dashboard">
-              <Button variant="outline" className="border-luxury-black/20 hover:bg-luxury-black/5 hover:border-luxury-black/30 rounded-sm flex items-center gap-2" animation="scale">
-                <ArrowLeft size={16} />
-                Назад к коллекциям
-              </Button>
+              <Button variant="outline">Назад к коллекциям</Button>
             </Link>
           </div>
 
           <Tabs defaultValue="properties" className="w-full">
-            <TabsList className="mb-8 bg-white border border-luxury-black/10 p-1 rounded-sm">
-              <TabsTrigger 
-                value="properties" 
-                className="data-[state=active]:bg-luxury-black data-[state=active]:text-white rounded-sm py-2.5 px-4"
-              >
-                Объекты ({properties?.length || 0})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="add" 
-                className="data-[state=active]:bg-luxury-black data-[state=active]:text-white rounded-sm py-2.5 px-4"
-              >
-                <Plus size={16} className="mr-1" />
-                Добавить объект
-              </TabsTrigger>
+            <TabsList className="mb-6">
+              <TabsTrigger value="properties">Объекты ({properties?.length || 0})</TabsTrigger>
+              <TabsTrigger value="add">Добавить объект</TabsTrigger>
             </TabsList>
 
             <TabsContent value="properties">
@@ -139,38 +115,24 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-sm shadow-elegant p-12 text-center max-w-xl mx-auto mt-8 animate-fade-in-up border border-gray-100 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('/images/background.png')] bg-cover bg-center opacity-[0.2] z-0"></div>
-                  <div className="relative z-10">
-                    <div className="mb-8">
-                      <div className="w-20 h-20 mx-auto rounded-full bg-luxury-gold/10 flex items-center justify-center">
-                        <HomeIcon className="h-10 w-10 text-luxury-gold" />
-                      </div>
-                      <div className="w-16 h-0.5 bg-luxury-gold mx-auto mt-4"></div>
-                    </div>
-                    
-                    <h2 className="text-2xl font-serif font-medium mb-4 text-luxury-black">В этой коллекции пока нет объектов</h2>
-                    <p className="text-luxury-black/70 mb-8 max-w-lg mx-auto leading-relaxed">
-                      Добавьте объекты недвижимости, чтобы начать формировать коллекцию.
-                    </p>
-                  </div>
+                <div className="text-center py-12">
+                  <h2 className="text-2xl font-semibold mb-4">В этой коллекции пока нет объектов</h2>
+                  <p className="text-gray-600 mb-6">
+                    Добавьте объекты недвижимости, чтобы начать формировать коллекцию.
+                  </p>
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="add" className="relative animate-fade-in">
+            <TabsContent value="add">
               <AddPropertyForm collectionId={collectionId} />
             </TabsContent>
           </Tabs>
         </main>
 
-        <footer className="bg-luxury-black py-10 text-white/60 mt-auto border-t border-white/5">
-          <div className="container-luxury flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center">
-              <h2 className="text-xl font-serif text-white mr-2">РиелторПро</h2>
-              <span className="text-sm">• Платформа для риелторов</span>
-            </div>
-            <p>&copy; {new Date().getFullYear()} Все права защищены</p>
+        <footer className="bg-gray-100 py-6">
+          <div className="container mx-auto px-4 text-center text-gray-600">
+            <p>&copy; {new Date().getFullYear()} Платформа для риелторов</p>
           </div>
         </footer>
       </div>
