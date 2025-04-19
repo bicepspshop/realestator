@@ -1,57 +1,34 @@
-import Image from "next/image"
+import { Mail } from "lucide-react"
 
 interface AgentInfoProps {
   name: string
   email?: string
-  phone?: string
 }
 
-export function AgentInfo({ name, email, phone }: AgentInfoProps) {
+export function AgentInfo({ name, email }: AgentInfoProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row items-center gap-6">
-      <div className="w-24 h-24 relative rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-        <Image src={`/placeholder.svg?height=96&width=96&query=agent`} alt={name} fill className="object-cover" />
-      </div>
-      <div>
-        <h2 className="text-xl font-semibold mb-1">Ваш агент по недвижимости</h2>
-        <p className="text-2xl font-bold text-gray-900 mb-3">{name}</p>
-        <div className="space-y-1">
+    <div className="bg-[#141414] rounded-xl p-6 border border-[#222222] shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div className="w-24 h-24 rounded-full bg-[#222222] flex items-center justify-center text-[#4370FF] text-2xl font-bold">
+          {name.charAt(0).toUpperCase()}
+        </div>
+        <div className="flex-1 text-center md:text-left">
+          <h2 className="text-xl font-semibold text-white mb-2">Ваш агент по недвижимости</h2>
+          <p className="text-xl font-bold text-white mb-3">{name}</p>
+          {email && <p className="text-[#CCCCCC] mb-4">{email}</p>}
+          <p className="text-[#888888]">
+            Профессиональный агент, который поможет вам найти идеальный вариант недвижимости.
+          </p>
+        </div>
+        <div className="mt-4 md:mt-0">
           {email && (
-            <p className="text-gray-600 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect width="20" height="16" x="2" y="4" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-              {email}
-            </p>
-          )}
-          {phone && (
-            <p className="text-gray-600 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
-              {phone}
-            </p>
+            <a
+              href={`mailto:${email}`}
+              className="inline-flex items-center bg-[#4370FF] hover:bg-[#3060FF] text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 hover:shadow-[0_2px_8px_rgba(67,112,255,0.4)] active:scale-[0.98]"
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Связаться
+            </a>
           )}
         </div>
       </div>

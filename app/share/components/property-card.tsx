@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image from "next/image"
+import Link from "next/link"
+import { Copy, ExternalLink, ChevronLeft, ChevronRight, LayoutTemplateIcon as LayoutPlan } from "lucide-react"
 import { PropertyGallery } from "./property-gallery"
 
 interface PropertyImage {
@@ -19,6 +21,7 @@ interface PropertyCardProps {
     rooms: number | null
     description: string | null
     property_images: PropertyImage[]
+    floor_plan_url?: string | null
     living_area?: number | null
     floor?: number | null
     total_floors?: number | null
@@ -30,14 +33,11 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, index, isSelected, onSelect }: PropertyCardProps) {
-  const [activeTab, setActiveTab] = useState<"plan" | "gallery" | "map">("gallery")
-  const [galleryOpen, setGalleryOpen] = useState(false)
-
-  const propertyTypeLabels: Record<string, string> = {
-    apartment: "Квартира",
-    house: "Дом",
-    land: "Земельный участок",
-  }
+  const [copied, setCopied] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [isFloorPlanView, setIsFloorPlanView] = useState(false)
+  const hasMultipleImages = property.property_images.length > 1
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("ru-RU", {
@@ -49,196 +49,213 @@ export function PropertyCard({ property, index, isSelected, onSelect }: Property
 
   const roomsText =
     property.rooms === 1
-      ? "1-комнатная квартира"
+      ? "1-комн. квартира"
       : property.rooms === 2
-        ? "2-комнатная квартира"
+        ? "2-комн. квартира"
         : property.rooms === 3
-          ? "3-комнатная квартира"
+          ? "3-комн. квартира"
           : property.property_type === "house"
-            ? `Дом ${property.area} м²`
+            ? `Дом`
             : property.property_type === "land"
-              ? `Участок ${property.area} сот.`
+              ? `Участок`
               : "Студия"
 
-  const renovationTypes = {
-    designer: "Дизайнерский",
-    euro: "Евроремонт",
-    cosmetic: "Косметический",
-    none: "Без ремонта",
+  const copyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/share/property/${property.id}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
-  // Determine renovation type (this is a placeholder - adjust based on your data structure)
-  const renovationType = property.description?.toLowerCase().includes("дизайн")
-    ? renovationTypes.designer
-    : property.description?.toLowerCase().includes("евро")
-      ? renovationTypes.euro
-      : renovationTypes.cosmetic
+  const nextImage = useCallback(() => {
+    if (property.property_images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % property.property_images.length)
+    }
+  }, [property.property_images.length])
+
+  const prevImage = useCallback(() => {
+    if (property.property_images.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + property.property_images.length) % property.property_images.length)
+    }
+  }, [property.property_images.length])
+
+  const openGallery = (isFloorPlan = false) => {
+    setIsFloorPlanView(isFloorPlan)
+    setIsGalleryOpen(true)
+  }
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
-      <div className="p-0">
-        <div className="grid sm:grid-cols-[300px_1fr] gap-4">
-          <div className="relative h-48 sm:h-auto">
-            {property.property_images.length > 0 ? (
-              <Image
-                src={property.property_images[0].image_url || "/placeholder.svg"}
-                alt={`${roomsText}, ${property.area} м²`}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <p className="text-gray-500">Нет изображения</p>
-              </div>
-            )}
-            <button
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground absolute top-2 right-2 h-8 w-8 rounded-full text-white"
-              onClick={() => {}}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-heart h-5 w-5"
-              >
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-              </svg>
-              <span className="sr-only">Добавить в избранное</span>
-            </button>
-          </div>
-          <div className="p-4 space-y-4">
-            <div>
-              <h3 className="text-xl font-semibold">
-                {roomsText}, {property.area} м²
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-map-pin h-4 w-4"
-                >
-                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>{property.address}</span>
-              </div>
-            </div>
+    <>
+      <div className="bg-[#141414] rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.4)] border border-[#222222] flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+        <div className="p-4">
+          {/* Image and content */}
+          <div className="flex flex-col space-y-4">
+            {/* Image Carousel */}
+            <div className="relative w-full h-48 rounded-lg overflow-hidden group">
+              {property.property_images.length > 0 ? (
+                <>
+                  <Image
+                    src={property.property_images[currentImageIndex]?.image_url || "/placeholder.svg"}
+                    alt={`${roomsText}, ${property.area} м²`}
+                    fill
+                    className="object-cover transition-opacity duration-300"
+                  />
 
-            <p className="text-sm text-muted-foreground line-clamp-3">{property.description}</p>
+                  {/* Navigation arrows - only show if multiple images */}
+                  {hasMultipleImages && (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          prevImage()
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          nextImage()
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
 
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-ruler h-4 w-4 text-blue-600"
-                >
-                  <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z" />
-                  <path d="m14.5 12.5 2-2" />
-                  <path d="m11.5 9.5 2-2" />
-                  <path d="m8.5 6.5 2-2" />
-                  <path d="m17.5 15.5 2-2" />
-                </svg>
-                <span>{property.area} м²</span>
-              </div>
+                      {/* Image counter indicator */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                        {currentImageIndex + 1} / {property.property_images.length}
+                      </div>
+                    </>
+                  )}
 
-              {property.floor && property.total_floors && (
-                <div className="flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-building h-4 w-4 text-blue-600"
+                  {/* View gallery button */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      openGallery(false)
+                    }}
+                    className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70"
                   >
-                    <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
-                    <path d="M9 22v-4h6v4" />
-                    <path d="M8 6h.01" />
-                    <path d="M16 6h.01" />
-                    <path d="M12 6h.01" />
-                    <path d="M12 10h.01" />
-                    <path d="M12 14h.01" />
-                    <path d="M16 10h.01" />
-                    <path d="M16 14h.01" />
-                    <path d="M8 10h.01" />
-                    <path d="M8 14h.01" />
-                  </svg>
-                  <span>
-                    {property.floor}/{property.total_floors} эт.
-                  </span>
+                    Просмотр
+                  </button>
+                </>
+              ) : (
+                <div className="w-full h-full bg-[#222222] flex items-center justify-center">
+                  <p className="text-[#888888]">Нет изображения</p>
                 </div>
               )}
+            </div>
 
-              <div className="flex items-center gap-2">
+            {/* Floor Plan Thumbnail - only show if floor_plan_url exists */}
+            {property.floor_plan_url && (
+              <div className="relative w-full h-24 rounded-lg overflow-hidden bg-[#1A1A1A] border border-[#333333] group">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex items-center gap-2">
+                    <LayoutPlan className="text-[#4370FF]" size={18} />
+                    <span className="text-sm font-medium text-white">Планировка</span>
+                  </div>
+                </div>
+                <Image
+                  src={property.floor_plan_url || "/placeholder.svg"}
+                  alt="Планировка"
+                  fill
+                  className="object-contain opacity-40 group-hover:opacity-70 transition-opacity duration-200"
+                />
+                <button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    openGallery(true)
+                  }}
+                  className="absolute inset-0 w-full h-full cursor-pointer"
+                  aria-label="Просмотреть планировку"
+                />
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-lg font-semibold text-white">
+                  {roomsText}, {property.area} м²
+                </h3>
+                <p className="text-sm text-[#888888] mt-1">{property.address}</p>
+              </div>
+
+              <p className="text-sm text-[#CCCCCC] line-clamp-2">{property.description || "Нет описания"}</p>
+
+              <div className="text-xl font-bold text-[#4370FF]">{formatPrice(property.price)}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Button and actions */}
+        <div className="p-4 mt-auto">
+          <div className="space-y-4">
+            <Link
+              href={`/share/property/${property.id}`}
+              className="block w-full bg-[#4370FF] hover:bg-[#3060FF] text-white font-medium py-2.5 px-4 rounded-lg text-center transition-all duration-200 hover:shadow-[0_2px_8px_rgba(67,112,255,0.4)] active:scale-[0.98] group"
+            >
+              <span className="flex items-center justify-center">
+                Просмотр объекта
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="lucide lucide-paintbrush h-4 w-4 text-blue-600"
+                  className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"
                 >
-                  <path d="m14.622 17.897-10.68-2.913" />
-                  <path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z" />
-                  <path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15" />
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
                 </svg>
-                <span>{renovationType}</span>
-              </div>
-            </div>
+              </span>
+            </Link>
 
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-blue-600">{formatPrice(property.price)}</div>
-              <a
-                href={`/share/property/${property.id}`}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                Подробнее
-              </a>
+              <div className="flex space-x-2">
+                <button
+                  onClick={copyLink}
+                  className="p-2 rounded-lg bg-[#222222] hover:bg-[#333333] text-[#CCCCCC] transition-all duration-200 hover:text-white active:scale-95"
+                  title="Копировать ссылку"
+                >
+                  <Copy size={18} />
+                  <span className="sr-only">Копировать ссылку</span>
+                </button>
+
+                <Link
+                  href={`/share/property/${property.id}`}
+                  className="p-2 rounded-lg bg-[#222222] hover:bg-[#333333] text-[#CCCCCC] transition-all duration-200 hover:text-white active:scale-95"
+                  title="Открыть"
+                >
+                  <ExternalLink size={18} />
+                  <span className="sr-only">Открыть</span>
+                </Link>
+              </div>
+
+              {copied && <span className="text-xs text-[#4370FF] animate-fade-in">Ссылка скопирована</span>}
             </div>
           </div>
         </div>
       </div>
 
-      {isSelected && (
-        <div>
-          {activeTab === "gallery" && (
-            <PropertyGallery
-              images={property.property_images}
-              isOpen={galleryOpen}
-              onClose={() => setGalleryOpen(false)}
-            />
-          )}
-        </div>
-      )}
-    </div>
+      {/* Gallery Modal */}
+      <PropertyGallery
+        images={
+          isFloorPlanView && property.floor_plan_url
+            ? [property.floor_plan_url]
+            : property.property_images.map((img) => img.image_url)
+        }
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        initialIndex={isFloorPlanView ? 0 : currentImageIndex}
+      />
+    </>
   )
 }

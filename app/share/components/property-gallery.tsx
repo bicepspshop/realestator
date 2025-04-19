@@ -5,19 +5,15 @@ import Image from "next/image"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 
-interface PropertyImage {
-  id: string
-  image_url: string
-}
-
 interface PropertyGalleryProps {
-  images: PropertyImage[]
+  images: string[]
   isOpen: boolean
   onClose: () => void
+  initialIndex?: number
 }
 
-export function PropertyGallery({ images, isOpen, onClose }: PropertyGalleryProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
+export function PropertyGallery({ images, isOpen, onClose, initialIndex = 0 }: PropertyGalleryProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex)
 
   const nextImage = () => {
     if (images.length <= 1) return
@@ -44,7 +40,7 @@ export function PropertyGallery({ images, isOpen, onClose }: PropertyGalleryProp
 
           <div className="relative h-full w-full flex items-center justify-center">
             <Image
-              src={images[currentIndex]?.image_url || "/placeholder.svg?height=600&width=800&query=property"}
+              src={images[currentIndex] || "/placeholder.svg?height=600&width=800&query=property"}
               alt={`Изображение ${currentIndex + 1}`}
               fill
               className="object-contain"

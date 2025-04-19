@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
 import { ImageUpload } from "@/components/image-upload"
+import { FloorPlanUpload } from "@/components/floor-plan-upload"
 import { updateProperty, getPropertyById } from "./actions"
 import { YandexMap } from "@/components/yandex-map"
 import { AddressSuggest } from "@/components/address-suggest"
@@ -47,6 +48,7 @@ export function EditPropertyForm({ propertyId, isOpen, onClose }: EditPropertyFo
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null)
   const [isLoadingProperty, setIsLoadingProperty] = useState(true)
   const [mapCoordinates, setMapCoordinates] = useState<[number, number] | null>(null)
 
@@ -113,6 +115,9 @@ export function EditPropertyForm({ propertyId, isOpen, onClose }: EditPropertyFo
           // Установка URL изображений
           const urls = property.property_images.map((img) => img.image_url)
           setImageUrls(urls)
+
+          // Установка URL планировки
+          setFloorPlanUrl(property.floor_plan_url)
         } catch (error) {
           console.error("Ошибка при загрузке объекта:", error)
           toast({
@@ -143,6 +148,7 @@ export function EditPropertyForm({ propertyId, isOpen, onClose }: EditPropertyFo
         price: values.price!,
         description: values.description || "",
         imageUrls,
+        floorPlanUrl,
         floor: values.floor,
         totalFloors: values.totalFloors,
         balcony: values.balcony,
@@ -180,6 +186,10 @@ export function EditPropertyForm({ propertyId, isOpen, onClose }: EditPropertyFo
 
   const handleImagesChange = (urls: string[]) => {
     setImageUrls(urls)
+  }
+
+  const handleFloorPlanChange = (url: string | null) => {
+    setFloorPlanUrl(url)
   }
 
   const handleAddressSelect = (address: string, coordinates?: [number, number]) => {
@@ -494,6 +504,12 @@ export function EditPropertyForm({ propertyId, isOpen, onClose }: EditPropertyFo
               <div>
                 <FormLabel className="block mb-2">Фотографии объекта</FormLabel>
                 <ImageUpload onImagesChange={handleImagesChange} initialImages={imageUrls} />
+              </div>
+
+              {/* Новое поле для загрузки планировки */}
+              <div>
+                <FormLabel className="block mb-2">Планировка</FormLabel>
+                <FloorPlanUpload onImageChange={handleFloorPlanChange} initialImage={floorPlanUrl} />
               </div>
 
               <DialogFooter>

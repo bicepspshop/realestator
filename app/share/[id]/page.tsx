@@ -52,46 +52,46 @@ export default async function SharePage({ params }: SharePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0D0D0D] text-white">
       {/* Шапка */}
-      <header className="bg-white py-6 border-b">
+      <header className="bg-[#141414] py-6 border-b border-[#222222]">
         <div className="container mx-auto px-4 md:px-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{collection.name}</h1>
-          <p className="text-gray-600">Подборка от {agent?.name || "Агента недвижимости"}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">{collection.name}</h1>
+          <p className="text-[#CCCCCC]">Подборка от {agent?.name || "Агента недвижимости"}</p>
         </div>
       </header>
 
       {/* Основной контент */}
       <main className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+        {/* Информация об агенте - перемещена в начало */}
+        <div className="mb-8">
+          <AgentInfo name={agent?.name || "Агент недвижимости"} email={agent?.email} />
+        </div>
+
         {properties.length === 0 ? (
           <div className="text-center py-12">
-            <h2 className="text-xl font-semibold text-gray-700">В этой подборке пока нет объектов</h2>
-            <p className="text-gray-500 mt-2">Агент еще не добавил объекты недвижимости в эту коллекцию</p>
+            <h2 className="text-xl font-semibold text-white">В этой подборке пока нет объектов</h2>
+            <p className="text-[#CCCCCC] mt-2">Агент еще не добавил объекты недвижимости в эту коллекцию</p>
           </div>
         ) : (
           <>
             <div className="mb-6 flex justify-between items-center">
               <div>
-                <p className="text-gray-500">Найдено объектов: {properties.length}</p>
+                <p className="text-[#888888]">Найдено объектов: {properties.length}</p>
               </div>
             </div>
 
             <PropertyList properties={properties} />
-
-            {/* Информация об агенте */}
-            <div className="mt-12 md:mt-16">
-              <AgentInfo name={agent?.name || "Агент недвижимости"} email={agent?.email} />
-            </div>
           </>
         )}
       </main>
 
       {/* Подвал */}
-      <footer className="bg-white border-t py-8 mt-auto">
+      <footer className="bg-[#141414] border-t border-[#222222] py-8 mt-auto">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-              <p className="text-gray-600">&copy; {new Date().getFullYear()} Платформа для риелторов</p>
+              <p className="text-[#888888]">&copy; {new Date().getFullYear()} Платформа для риелторов</p>
             </div>
           </div>
         </div>

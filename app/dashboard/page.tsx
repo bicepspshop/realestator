@@ -153,6 +153,7 @@ export default async function DashboardPage() {
                         collectionId={collection.id}
                         userId={user.id}
                         hasShareLink={!!collection.share_id}
+                        shareId={collection.share_id}
                       />
                     )}
                   </CardFooter>

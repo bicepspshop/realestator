@@ -11,6 +11,7 @@ interface PropertyData {
   price: number
   description: string
   imageUrls: string[]
+  floorPlanUrl?: string | null // Добавляем поле для URL планировки
   // Новые поля
   livingArea?: number | null
   floor?: number | null
@@ -27,6 +28,7 @@ export async function addProperty(data: PropertyData) {
   try {
     console.log("addProperty: Начало добавления объекта")
     console.log("addProperty: Полученные URL изображений:", data.imageUrls)
+    console.log("addProperty: Полученный URL планировки:", data.floorPlanUrl)
 
     const supabase = getServerClient()
 
@@ -57,6 +59,7 @@ export async function addProperty(data: PropertyData) {
         area: data.area,
         price: data.price,
         description: data.description,
+        floor_plan_url: data.floorPlanUrl || null, // Добавляем URL планировки
         // Новые поля
         living_area: data.livingArea || null,
         floor: data.floor || null,
@@ -138,6 +141,7 @@ export async function updateProperty(propertyId: string, data: Omit<PropertyData
         area: data.area,
         price: data.price,
         description: data.description,
+        floor_plan_url: data.floorPlanUrl || null, // Добавляем URL планировки
         // Новые поля
         living_area: data.livingArea || null,
         floor: data.floor || null,
@@ -253,6 +257,7 @@ export async function getPropertyById(propertyId: string) {
         area, 
         price, 
         description,
+        floor_plan_url,
         living_area,
         floor,
         total_floors,
